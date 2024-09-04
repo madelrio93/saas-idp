@@ -7,7 +7,8 @@ export default defineConfig({
     name: "SaaS and IDP Information",
     version: "1.0.0",
     description:
-      "identifies when a user accesses a SaaS (Software as a Service) application, determines the Identity Provider (IDP) used for login, and retrieves the account details with which the user logged in.",
+      "Identifies when a user accesses a SaaS (Software as a Service) application, determines the Identity Provider (IDP) used for login, and retrieves the account details with which the user logged in.",
+    permissions: ["tabs", "storage"],
   },
   srcDir: "./src",
 });

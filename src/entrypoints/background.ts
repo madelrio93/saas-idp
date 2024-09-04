@@ -1,3 +1,18 @@
+import { isSaaSUrl, saveStorageSaaSData } from "@/utils";
+import { Tabs } from "wxt/browser";
+
 export default defineBackground(() => {
-  console.log('Hello background!', { id: browser.runtime.id });
+  const handleOnUpdateTab = (
+    _: number,
+    changeInfo: Tabs.OnUpdatedChangeInfoType,
+    { favIconUrl, url }: Tabs.Tab
+  ) => {
+    if (changeInfo.status === "complete") {
+      if (url && isSaaSUrl(url ?? "")) {
+        saveStorageSaaSData({ url, icon: favIconUrl });
+      }
+    }
+  };
+
+  browser.tabs.onUpdated.addListener(handleOnUpdateTab);
 });
