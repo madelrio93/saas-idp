@@ -1,6 +1,11 @@
 import { SaaSInfo } from "@/types/saas-info";
 
-export const saasDomains = ["salesforce.com", "office.com", "slack.com"];
+export const saasDomains = ["office.com", "slack.com"];
+export const idpPatterns = {
+  google: "accounts.google.com",
+  microsoft: "login.microsoftonline.com",
+  okta: "okta.com",
+};
 
 export const extractDomain = (url: string) => {
   const hostname = new URL(url).hostname;
@@ -20,7 +25,7 @@ export const isSaaSUrl = (url: string) => {
 };
 
 /**
- * Saves or updates the SaaS domain information in local storage.
+ * Saves  the SaaS domain information in local storage.
  *
  * @param {string} [params.url] - The URL of the SaaS domain.
  * @param {string} [params.icon=""] - The icon associated with the SaaS domain (optional).
@@ -34,7 +39,6 @@ export const saveStorageSaaSData = async ({
   url: string;
   icon?: string;
 }): Promise<void> => {
-  console.log(icon)
   const data = await storage.getItem<SaaSInfo[]>("local:data");
 
   if (
@@ -45,4 +49,47 @@ export const saveStorageSaaSData = async ({
     return;
 
   storage.setItem("local:data", [...(data || []), { url, icon }]);
+};
+
+/**
+ * Identify IDP
+ *
+ * @param {url} [params.url] - IDP url.
+ */
+export const identifyIDPPattern = (url: string) => {
+  for (const [idp, pattern] of Object.entries(idpPatterns)) {
+    if (url.includes(pattern)) {
+      console.log(`IDP detected: ${idp}`);
+      return idp;
+    }
+  }
+
+  return null;
+};
+
+/**
+ * Saves the IDP identified in local storage.
+ *
+ * @param {string} [url] - The url.
+ * @param {string} [idp] - The idp.
+ *
+ * @returns {Promise<void>} - A promise that resolves when the save operation is complete.
+ */
+export const saveStorageIDPData = async (
+  url: string,
+  idp: string
+): Promise<void> => {
+  const data = await storage.getItem<SaaSInfo[]>("local:data");
+
+  if (!data) return;
+
+  const saasIdentifiedIndex = data?.findIndex((item) => url.includes(extractDomain(item.url)));
+  if (saasIdentifiedIndex === -1) return;
+
+  data[saasIdentifiedIndex] = {
+    ...data[saasIdentifiedIndex],
+    idp,
+  };
+
+  await storage.setItem("local:data", data);
 };
