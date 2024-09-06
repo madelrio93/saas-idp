@@ -1,6 +1,12 @@
 import { SaaSInfo } from "@/types/saas-info";
 
-export const saasDomains = ["office.com", "slack.com"];
+export const saasDomains = [
+  "office.com",
+  "slack.com",
+  "microsoft.com",
+  "salesforce.com",
+  "dropbox.com",
+];
 export const idpPatterns = {
   google: "accounts.google.com",
   microsoft: "login.microsoftonline.com",
@@ -37,7 +43,7 @@ export const saveStorageSaaSData = async ({
   icon,
 }: {
   url: string;
-  icon?: string;
+  icon: string;
 }): Promise<void> => {
   const data = await storage.getItem<SaaSInfo[]>("local:data");
 
@@ -83,7 +89,9 @@ export const saveStorageIDPData = async (
 
   if (!data) return;
 
-  const saasIdentifiedIndex = data?.findIndex((item) => url.includes(extractDomain(item.url)));
+  const saasIdentifiedIndex = data?.findIndex((item) =>
+    url.includes(extractDomain(item.url))
+  );
   if (saasIdentifiedIndex === -1) return;
 
   data[saasIdentifiedIndex] = {

@@ -1,15 +1,20 @@
 import { isSaaSUrl, saveStorageSaaSData } from "@/utils";
+import { MessageType } from "@/utils/constants";
 import { Tabs } from "wxt/browser";
 
-export default defineBackground(async () => {
-  const handleOnUpdateTab = (
-    _: number,
+export default defineBackground(() => {
+  const handleOnUpdateTab = async (
+    tabId: number,
     changeInfo: Tabs.OnUpdatedChangeInfoType,
-    { favIconUrl, url }: Tabs.Tab
+    { url }: Tabs.Tab
   ) => {
     if (changeInfo.status === "complete" && url) {
       if (url && isSaaSUrl(url)) {
-        saveStorageSaaSData({ url, icon: favIconUrl });
+        const { icon } = await browser.tabs.sendMessage(tabId, {
+          messageType: MessageType.GET_LOGO,
+        });
+
+        saveStorageSaaSData({ url, icon });
       } else {
         const idp = identifyIDPPattern(url);
 
